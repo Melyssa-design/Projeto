@@ -1,0 +1,13 @@
+/* src\componentes\InforCurso\Styles.css */
+
+.inforCurso h1 {
+    color:rgb(107, 1, 1);
+    margin: 20px;
+    font-size: 50px;
+}
+
+.inforCurso p {
+    color: #ff4444;
+    margin: 20px;
+    font-size: 18px;
+}

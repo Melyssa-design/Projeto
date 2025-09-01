@@ -1,0 +1,17 @@
+/* src\componentes\Mensagem\Styles.css */
+
+.mensagem h1{
+    color: rgb(3, 80, 94);
+    font-size: 50px;
+    text-align: center;
+    margin: 10px;
+}
+
+.mensagem p{
+    color: rgb(44, 224, 236);
+    font-size: 20px;
+    text-align: center;
+    margin: 10px;
+
+}
+

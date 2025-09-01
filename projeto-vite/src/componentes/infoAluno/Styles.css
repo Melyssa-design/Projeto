@@ -1,0 +1,14 @@
+/* src\componentes\infoAluno\index.jsx */
+
+.infoAluno h1 {
+    color: hsl(36, 78%, 34%);
+    margin: 20px;
+    font-size: 30px;
+}
+
+.infoAluno p {
+    color: hsl(46, 90%, 52%);
+    margin: 10px;
+    font-size: 18px;
+
+}
