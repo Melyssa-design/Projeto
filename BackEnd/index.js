@@ -2,18 +2,30 @@ const express = require('express');
 const cors = require('cors');
 const { Sequelize, DataTypes } = require('sequelize');
 
-
-// Configuração do Sequelize para conectar ao banco de dados MySQL.
-const sequelize = new Sequelize('db_aula', 'root', '', {
+// CONFIGURAÇÃO DO BANCO DE DADOS
+const sequelize = new Sequelize('BackEnd', 'root', '',{
     host: 'localhost',
     dialect: 'mysql'
 });
 
-// Definição da tabela de Usuário.
-const Usuario = sequelize.define('Usuario', {
+const Funcionario = sequelize.define('Funcionario',{
     nome: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    cpf: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    rg: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    data_de_nascimento: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     email: {
         type: DataTypes.STRING,
@@ -22,46 +34,120 @@ const Usuario = sequelize.define('Usuario', {
     },
     telefone: {
         type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    matricula: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    salario: {
+        type: DataTypes.FLOAT,
         allowNull: false
     }
+
+})
+
+const Produto = sequelize.define('Produto',{
+    nome: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    lote: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    validade: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }
+})
+
+const Clientes = sequelize.define('Cliente',{
+    nome: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    datadeNascimento: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    protocoloDeAtendimento: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    }
+})
+
+const app = express(); // INICIALIZA O EXPRESS
+app.use(cors()); // PERMITE QUE API ACEITE CONEXÃO DO FRONT-END.
+app.use(express.json()); // HABILITA O EXPRESS PARA ENTENDER REQUISIÇÕES COM JSON;
+
+const port = 3000; // PORTA QUE A APLICAÇÃO VAI RODAR
+
+// ROTA DE TESTE
+app.get('/', (req, res) => {
+    res.send('API está funcionando!');
 });
 
-// Configuração do servidor Express.
-const app = express(); // Criação da aplicação Express.
-app.use(cors()); // Habilita CORS para permitir requisições do frontend.
-app.use(express.json()); // Middleware para parsear JSON no corpo das requisições.
-const port = 3000; // Porta onde o servidor irá escutar.
+// ROTA PARA LISTAR TODOS OS FUNCIONÁRIOS
+app.get('/funcionarios', async (req, res) => {
+    const funcionarios = await Funcionario.findAll();
+    res.json(funcionarios);
+});
 
-// Criando rotas da API.
-// Rota para listar todos os usuários.
-app.get('/usuarios', async (req, res) => {
+// ROTA PARA CRIAR UM NOVO FUNCIONÁRIO
+app.post('/funcionarios', async (req, res) => {
     try {
-        const usuarios = await Usuario.findAll();
-        res.json(usuarios);
+        const { nome, cpf, rg, data_de_nascimento, email, telefone, matricula, salario} = req.body;
+        const novoFuncionario = await Funcionario.create({ nome, cpf, rg, data_de_nascimento, email, telefone, matricula, salario });
+        res.status(201).json(novoFuncionario);
     } catch (error) {
-        res.status(500).json({ mensagem: 'Erro ao buscar usuários' });
+        res.status(400).json({mensagem: "Funcionario já cadastrado ou dados inválidos."});
     }
 });
 
-// Rota para adicionar um novo usuário.
-app.post('/usuarios', async (req, res) => {
+// ROTA PARA LISTAR TODOS OS PRODUTOS
+app.get('/produtos', async (req, res) => {
+    const produtos = await Produto.findAll();
+    res.json(produtos);
+});
+
+// ROTA PARA CRIAR UM NOVO PRODUTO
+app.post('/produto', async (req, res) => {
     try {
-        const { nome, email, telefone } = req.body;
-        const novoUsuario = await Usuario.create({ nome, email, telefone });
-        res.status(201).json(novoUsuario);
+        const {nome, lote, validade} = req.body;
+        const novoFuncionario = await Funcionario.create({ nome, lote, validade });
+        res.status(201).json(novoProduto);
     } catch (error) {
-        res.status(400).json({ mensagem: 'Verifique se o e-mail já existe.' });
+        res.status(400).json({mensagem: "Produto já cadastrado."});
     }
 });
 
-// Inicia o servidor após sincronizar criar tabela no banco de dados.
+// ROTA PARA LISTAR TODOS OS CLIENTES
+app.get('/clientes', async (req, res) => {
+    const clientes = await Clientes.findAll();
+    res.json(clientes);
+});
+
+// ROTA PARA CRIAR UM NOVO CLIENTE
+app.post('/cliente', async (req, res) => {
+    try {
+        const {nome, datadeNascimento, protocoloDeAtendimento} = req.body;
+        const novoCliente = await Clientes.create({ nome, datadeNascimento, protocoloDeAtendimento });
+        res.status(201).json(novoCliente);
+    } catch (error) {
+        res.status(400).json({mensagem: "Cliente já cadastrado ou dados inválidos."});
+    }
+});
+
+// SINCRONIZA O MODELO COM O BANCO DE DADOS E INICIA O SERVIDOR
 sequelize.sync().then(() => {
-    // Cria a tabela no banco de dados e inicia o servidor.
     app.listen(port, () => {
-        console.log(`Servidor rodando em http://localhost:${port}`); // Crase.
-        console.log('Banco de dados sincronizado.');
+        console.log(`😎 API rodando em http://localhost:${port}`);
+        console.log('😎 Conectado ao banco de dados MySQL.');
     });
 }).catch(err => {
-    console.error('Erro ao conectar ao banco de dados:', err);
+    console.error('Não foi possível conectar ao banco de dados:');
 });
-
